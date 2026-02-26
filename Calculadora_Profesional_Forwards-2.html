@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora Profesional de Forwards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            margin: 20px auto;
+            border-radius: 15px;
+            max-width: 650px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #1e3c72;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #16325c;
+        }
+        .result {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Calculadora Profesional de Forwards</h1>
+
+<div class="container">
+    <label>Tipo de Forward:</label>
+    <select id="tipo" onchange="renderInputs()">
+        <option value="divisas">Forward sobre Divisas</option>
+        <option value="sinIngresos">Activo sin ingresos</option>
+        <option value="conIngresos">Activo con ingresos</option>
+        <option value="tasas">Forward sobre tasas (FRA)</option>
+    </select>
+
+    <div id="inputs"></div>
+
+    <button onclick="calcular()">Calcular</button>
+
+    <div class="result" id="resultado"></div>
+</div>
+
+<script>
+function renderInputs() {
+    const tipo = document.getElementById("tipo").value;
+    const div = document.getElementById("inputs");
+
+    if (tipo === "divisas") {
+        div.innerHTML = `
+            <label>Tipo de cambio spot (S0):</label>
+            <input type="number" id="S0">
+            <label>Tasa doméstica (rd):</label>
+            <input type="number" id="rd" step="0.0001">
+            <label>Tasa extranjera (rf):</label>
+            <input type="number" id="rf" step="0.0001">
+            <label>Tiempo (T en años):</label>
+            <input type="number" id="T" step="0.01">
+        `;
+    }
+    else if (tipo === "sinIngresos") {
+        div.innerHTML = `
+            <label>Precio spot (S0):</label>
+            <input type="number" id="S0">
+            <label>Tasa libre de riesgo (r):</label>
+            <input type="number" id="r" step="0.0001">
+            <label>Tiempo (T en años):</label>
+            <input type="number" id="T" step="0.01">
+        `;
+    }
+    else if (tipo === "conIngresos") {
+        div.innerHTML = `
+            <label>Precio spot (S0):</label>
+            <input type="number" id="S0">
+            <label>Tasa libre de riesgo (r):</label>
+            <input type="number" id="r" step="0.0001">
+            <label>Rendimiento continuo (q):</label>
+            <input type="number" id="q" step="0.0001">
+            <label>Tiempo (T en años):</label>
+            <input type="number" id="T" step="0.01">
+        `;
+    }
+    else if (tipo === "tasas") {
+        div.innerHTML = `
+            <label>Tasa a T1 (r1):</label>
+            <input type="number" id="r1" step="0.0001">
+            <label>Tasa a T2 (r2):</label>
+            <input type="number" id="r2" step="0.0001">
+            <label>T1 (años):</label>
+            <input type="number" id="T1" step="0.01">
+            <label>T2 (años):</label>
+            <input type="number" id="T2" step="0.01">
+        `;
+    }
+}
+
+function calcular() {
+    const tipo = document.getElementById("tipo").value;
+    let resultado;
+
+    if (tipo === "divisas") {
+        const S0 = parseFloat(document.getElementById("S0").value);
+        const rd = parseFloat(document.getElementById("rd").value);
+        const rf = parseFloat(document.getElementById("rf").value);
+        const T = parseFloat(document.getElementById("T").value);
+        resultado = S0 * Math.exp((rd - rf) * T);
+    }
+    else if (tipo === "sinIngresos") {
+        const S0 = parseFloat(document.getElementById("S0").value);
+        const r = parseFloat(document.getElementById("r").value);
+        const T = parseFloat(document.getElementById("T").value);
+        resultado = S0 * Math.exp(r * T);
+    }
+    else if (tipo === "conIngresos") {
+        const S0 = parseFloat(document.getElementById("S0").value);
+        const r = parseFloat(document.getElementById("r").value);
+        const q = parseFloat(document.getElementById("q").value);
+        const T = parseFloat(document.getElementById("T").value);
+        resultado = S0 * Math.exp((r - q) * T);
+    }
+    else if (tipo === "tasas") {
+        const r1 = parseFloat(document.getElementById("r1").value);
+        const r2 = parseFloat(document.getElementById("r2").value);
+        const T1 = parseFloat(document.getElementById("T1").value);
+        const T2 = parseFloat(document.getElementById("T2").value);
+        resultado = ((r2 * T2) - (r1 * T1)) / (T2 - T1);
+    }
+
+    document.getElementById("resultado").innerHTML = 
+        "Precio Forward: " + resultado.toFixed(6);
+}
+
+renderInputs();
+</script>
+
+</body>
+</html>
